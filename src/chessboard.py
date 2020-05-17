@@ -5,7 +5,6 @@
 # @Date: 20-5-13
 # @Describe:
 
-
 from enum import Enum
 
 
@@ -29,18 +28,45 @@ class ChessPiece(Enum):
     RedSoldier = 17
 
 
+def is_black_chesspiece(chesspiece):
+    return chesspiece.value > 0 and chesspiece.value < 10
+
+
+def is_red_chesspiece(chesspiece):
+    return chesspiece.value > 10
+
+
+def is_empty_chesspiece(chesspiece):
+    return chesspiece == ChessPiece.Empty
+
+
+class Player(Enum):
+    Black = 0
+    Red = 1
+
+
+class Point
+    '''
+    点格
+    '''
+    def __init__(self, row, column):
+        self.row =row
+        self.column = column
+        
 class Chessboard:
     '''
     棋盘
     左手系，[0][0]表示棋盘左上角的格点
     上面是黑棋，下面是红棋
     '''
-
     def __init__(self):
         self._chessboard = [[ChessPiece.Empty] * 9 for _ in range(10)]
 
-    def set_chesspiece(self, row, column, chess_piece):
-        self._chessboard[row][column] = chess_piece
+    def get_chesspiece(self, point):
+        return self._chessboard[point.row][point.column]
+
+    def set_chesspiece(self, point, chess_piece):
+        self._chessboard[point.row][point.column] = chess_piece
 
     def set_chesspieces(self, chessboard):
         self._chessboard = chessboard
@@ -54,11 +80,12 @@ class Chessboard:
                 ret += "\n\n"
             j = 0
             for chesspiece in row:
+
                 def chinese(chesspiece, i, j):
                     font_end = '\033[0m'
-                    if chesspiece.value == 0:
+                    if is_empty_chesspiece(chesspiece):
                         font_start = '\033[33m'
-                    elif chesspiece.value < 10:
+                    elif is_black_chesspiece(chesspiece.value):
                         font_start = '\033[30m'
                     else:
                         font_start = '\033[31m'

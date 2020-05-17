@@ -5,11 +5,13 @@
 # @Date: 20-5-16
 # @Describe:
 
-from chessboard import Chessboard, ChessPiece
+from chessboard import Chessboard, ChessPiece, Player, Point
+from movement import movement
 
 class Judge:
     def __init__(self, chessboard):
         self._chessboard = chessboard
+        self._turn = Player.Red # 轮到谁走了
 
     def reset(self):
         chessboard = [[ChessPiece.Empty] * 9 for _ in range(10)]
@@ -52,6 +54,12 @@ class Judge:
         chessboard[6][8] = ChessPiece.RedSoldier
 
         self._chessboard.set_chesspieces(chessboard)
+
+    def move(movement):
+
+    def _move_chesspiece(movement):
+        self._chessboard.set_chesspieces(movement.end_point, self._chessboard.get_chesspieces(movement.start_point))
+        self._chessboard.set_chesspieces(movement.start_point, ChessPiece.Empty)
 
 if __name__ == '__main__':
     chessboard = Chessboard()
