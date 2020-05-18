@@ -5,13 +5,15 @@
 # @Date: 20-5-16
 # @Describe:
 
-from chessboard import Chessboard, ChessPiece, Player, Point
-from movement import movement
+from chessboard import Chessboard, ChessPiece, Player, is_black_chesspiece, is_red_chesspiece, is_empty_chesspiece, \
+    Point
+from movement import Movement
+
 
 class Judge:
     def __init__(self, chessboard):
         self._chessboard = chessboard
-        self._turn = Player.Red # 轮到谁走了
+        self._turn = Player.Red  # 轮到谁走了
 
     def reset(self):
         chessboard = [[ChessPiece.Empty] * 9 for _ in range(10)]
@@ -55,14 +57,33 @@ class Judge:
 
         self._chessboard.set_chesspieces(chessboard)
 
-    def move(movement):
+    def move(self, movement):
+        self._check_movement_chesspiece(movement)
 
-    def _move_chesspiece(movement):
-        self._chessboard.set_chesspieces(movement.end_point, self._chessboard.get_chesspieces(movement.start_point))
-        self._chessboard.set_chesspieces(movement.start_point, ChessPiece.Empty)
+        self._move_chesspiece(movement)
+
+    def _check_movement_chesspiece(self, movement):
+        '''检测被移动的棋子是否合法'''
+        movement_chesspiece = self._chessboard.get_chesspiece(movement.start_point)
+        if is_empty_chesspiece(movement_chesspiece):
+            raise Exception("movement chesspiece is empty!")
+        elif is_black_chesspiece(movement_chesspiece):
+            if self._turn == Player.Red:
+                raise Exception("Red player turn, but movement chesspiece is black!")
+        elif is_red_chesspiece(movement_chesspiece):
+            if self._turn == Player.Black:
+                raise Exception("Red player turn, but movement chesspiece is black!")
+
+    def _move_chesspiece(self, movement):
+        self._chessboard.set_chesspiece(movement.end_point, self._chessboard.get_chesspiece(movement.start_point))
+        self._chessboard.set_chesspiece(movement.start_point, ChessPiece.Empty)
+
 
 if __name__ == '__main__':
     chessboard = Chessboard()
     judge = Judge(chessboard)
     judge.reset()
+    # print(chessboard)
+    movement = Movement(Point(6, 2), Point(5, 2))
+    judge.move(movement)
     print(chessboard)

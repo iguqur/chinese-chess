@@ -45,20 +45,23 @@ class Player(Enum):
     Red = 1
 
 
-class Point
+class Point:
     '''
     点格
     '''
+
     def __init__(self, row, column):
-        self.row =row
+        self.row = row
         self.column = column
-        
+
+
 class Chessboard:
     '''
     棋盘
-    左手系，[0][0]表示棋盘左上角的格点
+    右手系，[0][0]表示棋盘左上角的格点，[0][4]表示黑帅的位置
     上面是黑棋，下面是红棋
     '''
+
     def __init__(self):
         self._chessboard = [[ChessPiece.Empty] * 9 for _ in range(10)]
 
@@ -85,7 +88,7 @@ class Chessboard:
                     font_end = '\033[0m'
                     if is_empty_chesspiece(chesspiece):
                         font_start = '\033[33m'
-                    elif is_black_chesspiece(chesspiece.value):
+                    elif is_black_chesspiece(chesspiece):
                         font_start = '\033[30m'
                     else:
                         font_start = '\033[31m'
@@ -131,9 +134,18 @@ class Chessboard:
                     return font_start + name + font_end
 
                 ret += chinese(chesspiece, i, j)
-                ret += "  "
+                if (i == 0 or i == 2 or i == 7 or i == 9) and (j == 3 or j == 4):
+                    ret += "\033[33m——\033[0m"
+                else:
+                    ret += "  "
                 j += 1
-            ret += "\n\n"
+            ret += "\n"
+            if i == 0 or i == 7:
+                ret += "\033[33m" + " " * 11 + '| ＼' + " " * 2 + "／ |\033[0m\n"
+            elif i == 1 or i == 8:
+                ret += "\033[33m" + " " * 11 + '| ／' + " " * 2 + "＼ |\033[0m\n"
+            else:
+                ret += "\n"
             i += 1
         return ret
 
