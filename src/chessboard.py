@@ -40,6 +40,21 @@ def is_empty_chesspiece(chesspiece):
     return chesspiece == ChessPiece.Empty
 
 
+def get_chesspiece_type(chesspiece):
+    if is_empty_chesspiece(chesspiece):
+        return ChesspieceType.Empty
+    elif is_black_chesspiece(chesspiece):
+        return ChesspieceType.Black
+    else:
+        return ChesspieceType.Red
+
+
+class ChesspieceType(Enum):
+    Empty = 0
+    Black = 1
+    Red = 2
+
+
 class Player(Enum):
     Black = 0
     Red = 1
