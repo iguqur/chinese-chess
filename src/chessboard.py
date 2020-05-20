@@ -29,7 +29,7 @@ class ChessPiece(Enum):
 
 
 def is_black_chesspiece(chesspiece):
-    return chesspiece.value > 0 and chesspiece.value < 10
+    return 0 < chesspiece.value < 10
 
 
 def is_red_chesspiece(chesspiece):
@@ -49,10 +49,40 @@ def get_chesspiece_type(chesspiece):
         return ChesspieceType.Red
 
 
+def get_chesspices_species(chesspiece):
+    if chesspiece == ChessPiece.BlackGeneral or chesspiece == ChessPiece.RedGeneral:
+        return ChesspieceSpecies.General
+    elif chesspiece == ChessPiece.BlackBodyGuard or chesspiece == ChessPiece.RedBodyGuard:
+        return ChesspieceSpecies.BodyGard
+    elif chesspiece == ChessPiece.BlackElephant or chesspiece == ChessPiece.RedElephant:
+        return ChesspieceSpecies.Elephant
+    elif chesspiece == ChessPiece.BlackHorse or chesspiece == ChessPiece.RedHorse:
+        return ChesspieceSpecies.Horse
+    elif chesspiece == ChessPiece.BlackCar or chesspiece == ChessPiece.RedCar:
+        return ChesspieceSpecies.Car
+    elif chesspiece == ChessPiece.BlackCannon or chesspiece == ChessPiece.RedCannon:
+        return ChesspieceSpecies.Cannon
+    elif chesspiece == ChessPiece.BlackSoldier or chesspiece == ChessPiece.RedSoldier:
+        return ChesspieceSpecies.Soldier
+    else:
+        return ChesspieceSpecies.Empty
+
+
 class ChesspieceType(Enum):
     Empty = 0
     Black = 1
     Red = 2
+
+
+class ChesspieceSpecies(Enum):
+    Empty = 0
+    General = 1
+    BodyGard = 2
+    Elephant = 3
+    Horse = 4
+    Car = 5
+    Cannon = 6
+    Soldier = 7
 
 
 class Player(Enum):
@@ -64,11 +94,38 @@ class Point:
     '''
     点格
     '''
+    MAX_ROW = 10
+    MAX_COLUMN = 9
 
     def __init__(self, row, column):
         self.row = row
         self.column = column
 
+    def valid(self):
+        return 0 <= self.row <= Point.MAX_ROW and 0 <= self.column <= Point.MAX_COLUMN
+
+    def relative_point(self, row, column):
+        '''
+        返回当前点的相对位置的点
+        :param row:
+        :param column:
+        :return:
+        '''
+        return Point(self.row + row, self.column + column)
+
+    def in_royal_palace(self, player):
+        '''
+        判断点是否在皇宫里
+        :param player: 那方的皇宫
+        :return:
+        '''
+        if player == Player.Black:
+            return 0 <= self.row <= 2 and 3 <= self.column <= 5
+        else:
+            return 7 <= self.row <= 9 and 3 <= self.column <= 5
+
+    def __repr__(self):
+        return "(%d, %d)"%(self.row, self.column)
 
 class Chessboard:
     '''
@@ -88,6 +145,19 @@ class Chessboard:
 
     def set_chesspieces(self, chessboard):
         self._chessboard = chessboard
+
+    def get_general_point(self, player):
+        if player == Player.Black:
+            for row in range(0, 3):
+                for column in range(3, 6):
+                    if self._chessboard[row][column] == ChessPiece.BlackGeneral:
+                        return Point(row, column)
+        else:
+            for row in range(7, 10):
+                for column in range(3, 6):
+                    if self._chessboard[row][column] == ChessPiece.RedGeneral:
+                        return Point(row, column)
+        raise Exception("Can not find general!")
 
     def __repr__(self):
         ret = ""
