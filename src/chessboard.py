@@ -124,8 +124,16 @@ class Point:
         else:
             return 7 <= self.row <= 9 and 3 <= self.column <= 5
 
+    def is_cross_the_river(self, player):
+        '''判断是否过河了'''
+        if player == Player.Black:
+            return self.row >= 5
+        else:
+            return self.row < 5
+
     def __repr__(self):
-        return "(%d, %d)"%(self.row, self.column)
+        return "(%d, %d)" % (self.row, self.column)
+
 
 class Chessboard:
     '''
@@ -145,6 +153,9 @@ class Chessboard:
 
     def set_chesspieces(self, chessboard):
         self._chessboard = chessboard
+
+    def is_empty_chesspiece(self, point):
+        is_empty_chesspiece(self._chessboard[point.row][point.column])
 
     def get_general_point(self, player):
         if player == Player.Black:

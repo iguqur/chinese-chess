@@ -32,6 +32,10 @@ class ExhaustiveMovement:
     def get_all_valid_movement_dst_point(self):
         if self._chesspiece_species == ChesspieceSpecies.General:
             return self._get_general_valid_movement()
+        elif self._chesspiece_species == ChesspieceSpecies.BodyGard:
+            return self._get_body_guard_valid_movement()
+        elif self._chesspiece_species == ChesspieceSpecies.Elephant:
+            return self._get_elephant_valid_movement()
 
     def _get_general_valid_movement(self):
         points = [self._point.relative_point(0, 1), self._point.relative_point(0, -1), self._point.relative_point(1, 0),
@@ -50,6 +54,34 @@ class ExhaustiveMovement:
             lambda point: point.in_royal_palace(self._player) and not self._is_self_mutilation(point) and not is_meet(
                 point),
             points))
+        return points
+
+    def _get_body_guard_valid_movement(self):
+        points = [self._point.relative_point(1, 1), self._point.relative_point(1, -1),
+                  self._point.relative_point(-1, -1),
+                  self._point.relative_point(-1, 1)]
+
+        points = list(filter(
+            lambda point: point.in_royal_palace(self._player) and not self._is_self_mutilation(point),
+            points))
+        return points
+
+    def _get_elephant_valid_movement(self):
+        points = [self._point.relative_point(2, 2), self._point.relative_point(2, -2),
+                  self._point.relative_point(-2, -2),
+                  self._point.relative_point(-2, 2)]
+
+        def is_stuck(point):
+            '''蹩脚'''
+            return self._chessboard.is_empty_chesspiece(
+                Point(int((self._point.row + point.row) / 2), int((self._point.column + point.column) / 2)))
+
+        points = list(filter(
+            lambda point: point.valid() and not point.is_cross_the_river(
+                self._player) and not is_stuck(point) and not self._is_self_mutilation(
+                point),
+            points))
+
         return points
 
     def _is_self_mutilation(self, dst_point):
@@ -75,11 +107,24 @@ class ExhaustiveMovement:
 
 if __name__ == '__main__':
     chessboard = Chessboard()
-    chessboard.set_chesspiece(Point(0,3), ChessPiece.BlackBodyGuard)
-    chessboard.set_chesspiece(Point(0,4), ChessPiece.BlackGeneral)
-    chessboard.set_chesspiece(Point(0,5), ChessPiece.BlackBodyGuard)
-    chessboard.set_chesspiece(Point(9,5), ChessPiece.RedGeneral)
+    chessboard.set_chesspiece(Point(0, 0), ChessPiece.BlackCar)
+    chessboard.set_chesspiece(Point(0, 1), ChessPiece.BlackHorse)
+    chessboard.set_chesspiece(Point(0, 2), ChessPiece.BlackElephant)
+    chessboard.set_chesspiece(Point(0, 3), ChessPiece.BlackBodyGuard)
+    chessboard.set_chesspiece(Point(0, 4), ChessPiece.BlackGeneral)
+    chessboard.set_chesspiece(Point(0, 5), ChessPiece.BlackBodyGuard)
+    chessboard.set_chesspiece(Point(2, 1), ChessPiece.BlackCannon)
+    chessboard.set_chesspiece(Point(3, 0), ChessPiece.BlackSoldier)
+    chessboard.set_chesspiece(Point(9, 5), ChessPiece.RedGeneral)
     print(chessboard)
     exhaustive_movement = ExhaustiveMovement(chessboard, Point(0, 4))
     points = exhaustive_movement.get_all_valid_movement_dst_point()
     print("Black general valid points:", points)
+
+    exhaustive_movement = ExhaustiveMovement(chessboard, Point(0, 3))
+    points = exhaustive_movement.get_all_valid_movement_dst_point()
+    print("Black body guard valid points:", points)
+
+    exhaustive_movement = ExhaustiveMovement(chessboard, Point(0, 2))
+    points = exhaustive_movement.get_all_valid_movement_dst_point()
+    print("Black elephant valid points:", points)
