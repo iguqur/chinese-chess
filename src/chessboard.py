@@ -133,6 +133,9 @@ class Point:
         else:
             return self.row < 5
 
+    def __eq__(self, other):
+        return self.row == other.row and self.column == other.column
+
     def __repr__(self):
         return "(%d, %d)" % (self.row, self.column)
 

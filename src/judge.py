@@ -8,6 +8,7 @@
 from chessboard import Chessboard, ChessPiece, Player, is_black_chesspiece, is_red_chesspiece, is_empty_chesspiece, \
     Point
 from movement import Movement
+from exhaustive_movement import ExhaustiveMovement
 
 
 class Judge:
@@ -60,6 +61,8 @@ class Judge:
     def move(self, movement):
         self._check_movement_chesspiece(movement)
 
+        self._check_movement_point_valid(movement)
+
         self._move_chesspiece(movement)
 
     def _check_movement_chesspiece(self, movement):
@@ -73,6 +76,12 @@ class Judge:
         elif is_red_chesspiece(movement_chesspiece):
             if self._turn == Player.Black:
                 raise Exception("Red player turn, but movement chesspiece is black!")
+
+    def _check_movement_point_valid(self, movement):
+        exhaustive_movement = ExhaustiveMovement(self._chessboard, movement.start_point)
+        points = exhaustive_movement.get_all_valid_movement_dst_point()
+        if movement.end_point not in points:
+            raise Exception("end point invalid!")
 
     def _move_chesspiece(self, movement):
         self._chessboard.set_chesspiece(movement.end_point, self._chessboard.get_chesspiece(movement.start_point))
