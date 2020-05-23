@@ -36,6 +36,14 @@ class ExhaustiveMovement:
             return self._get_body_guard_valid_movement()
         elif self._chesspiece_species == ChesspieceSpecies.Elephant:
             return self._get_elephant_valid_movement()
+        elif self._chesspiece_species == ChesspieceSpecies.Horse:
+            return self._get_horse_valid_movement()
+        elif self._chesspiece_species == ChesspieceSpecies.Car:
+            return self._get_car_valid_movement()
+        elif self._chesspiece_species == ChesspieceSpecies.Cannon:
+            return self._get_cannon_valid_movement()
+        elif self._chesspiece_species == ChesspieceSpecies.Soldier:
+            return self._get_soldier_valid_movement()
 
     def _get_general_valid_movement(self):
         points = [self._point.relative_point(0, 1), self._point.relative_point(0, -1), self._point.relative_point(1, 0),
@@ -73,7 +81,7 @@ class ExhaustiveMovement:
 
         def is_stuck(point):
             '''蹩脚'''
-            return self._chessboard.is_empty_chesspiece(
+            return self._chessboard.is_not_empty_chesspiece(
                 Point(int((self._point.row + point.row) / 2), int((self._point.column + point.column) / 2)))
 
         points = list(filter(
@@ -82,6 +90,143 @@ class ExhaustiveMovement:
                 point),
             points))
 
+        return points
+
+    def _get_horse_valid_movement(self):
+        points = [self._point.relative_point(2, 1),
+                  self._point.relative_point(2, -1),
+                  self._point.relative_point(1, 2),
+                  self._point.relative_point(1, -2),
+                  self._point.relative_point(-1, 2),
+                  self._point.relative_point(-1, -2),
+                  self._point.relative_point(-2, 1),
+                  self._point.relative_point(-2, -1)]
+
+        def is_stuck(point):
+            '''蹩脚'''
+            if point.row - self._point.row == 2:
+                return self._chessboard.is_not_empty_chesspiece(self._point.relative_point(1, 0))
+            elif point.row - self._point.row == -2:
+                return self._chessboard.is_not_empty_chesspiece(self._point.relative_point(-1, 0))
+            elif point.column - self._point.column == 2:
+                return self._chessboard.is_not_empty_chesspiece(self._point.relative_point(0, 1))
+            else:
+                return self._chessboard.is_not_empty_chesspiece(self._point.relative_point(0, -1))
+
+        points = list(filter(
+            lambda point: point.valid() and not is_stuck(point) and not self._is_self_mutilation(
+                point),
+            points))
+
+        return points
+
+    def _get_car_valid_movement(self):
+        # 此处用代码可读性换取速度
+        points = []
+
+        def check_point(point):
+            '''
+            检查当前point是否可以走，只是提取公共代码而已
+            :param point:
+            :return: True -- 需要继续往下迭代； False -- 不需要继续迭代了
+            '''
+            chesspiece_type = get_chesspiece_type(self._chessboard.get_chesspiece(point))
+            if chesspiece_type == ChesspieceType.Empty:
+                points.append(point)
+                return True
+            elif chesspiece_type == self._chesspiece_type:
+                return False
+            else:
+                points.append(points)
+                return False
+
+        for row in range(self._point.row, Point.MIN_ROW, -1):
+            row += -1
+            point = Point(row, self._point.column)
+            if not check_point(point):
+                break
+        for row in range(self._point.row, Point.MAX_ROW):
+            row += 1
+            point = Point(row, self._point.column)
+            if not check_point(point):
+                break
+        for column in range(self._point.column, Point.MIN_COLUMN, -1):
+            column += -1
+            point = Point(self._point.row, column)
+            if not check_point(point):
+                break
+        for column in range(self._point.column, Point.MAX_COLUMN):
+            column += 1
+            point = Point(self._point.row, column)
+            if not check_point(point):
+                break
+        return points
+
+    def _get_cannon_valid_movement(self):
+        points = []
+        eat_mode = False  # 跳了一个棋子就开始吃子模式，否则是正常的走
+
+        def check_point(point):
+            '''
+            检查当前point是否可以走，只是提取公共代码而已
+            :param point:
+            :return: True -- 需要继续往下迭代； False -- 不需要继续迭代了
+            '''
+            chesspiece_type = get_chesspiece_type(self._chessboard.get_chesspiece(point))
+            nonlocal eat_mode
+            if not eat_mode:
+                if chesspiece_type == ChesspieceType.Empty:
+                    points.append(point)
+                elif chesspiece_type == self._chesspiece_type:
+                    eat_mode = True
+                else:
+                    eat_mode = True
+                return True
+            else:
+                if chesspiece_type == ChesspieceType.Empty:
+                    return True
+                elif chesspiece_type == self._chesspiece_type:
+                    return False
+                else:
+                    points.append(point)
+                    return False
+
+        for row in range(self._point.row, Point.MIN_ROW, -1):
+            row += -1
+            point = Point(row, self._point.column)
+            if not check_point(point):
+                break
+        eat_mode = False
+        for row in range(self._point.row, Point.MAX_ROW):
+            row += 1
+            point = Point(row, self._point.column)
+            if not check_point(point):
+                break
+        eat_mode = False
+        for column in range(self._point.column, Point.MIN_COLUMN, -1):
+            column += -1
+            point = Point(self._point.row, column)
+            if not check_point(point):
+                break
+        eat_mode = False
+        for column in range(self._point.column, Point.MAX_COLUMN):
+            column += 1
+            point = Point(self._point.row, column)
+            if not check_point(point):
+                break
+
+        return points
+
+    def _get_soldier_valid_movement(self):
+        points = [self._point.relative_point(0, 1), self._point.relative_point(0, -1)]
+        if self._player == Player.Black:
+            points.append(self._point.relative_point(1, 0))
+        else:
+            points.append(self._point.relative_point(-1, 0))
+
+        points = list(filter(
+            lambda point: point.valid() and not self._is_self_mutilation(point),
+            points))
         return points
 
     def _is_self_mutilation(self, dst_point):
@@ -116,6 +261,8 @@ if __name__ == '__main__':
     chessboard.set_chesspiece(Point(2, 1), ChessPiece.BlackCannon)
     chessboard.set_chesspiece(Point(3, 0), ChessPiece.BlackSoldier)
     chessboard.set_chesspiece(Point(9, 5), ChessPiece.RedGeneral)
+    chessboard.set_chesspiece(Point(7, 1), ChessPiece.RedCannon)
+    chessboard.set_chesspiece(Point(9, 1), ChessPiece.RedHorse)
     print(chessboard)
     exhaustive_movement = ExhaustiveMovement(chessboard, Point(0, 4))
     points = exhaustive_movement.get_all_valid_movement_dst_point()
@@ -128,3 +275,19 @@ if __name__ == '__main__':
     exhaustive_movement = ExhaustiveMovement(chessboard, Point(0, 2))
     points = exhaustive_movement.get_all_valid_movement_dst_point()
     print("Black elephant valid points:", points)
+
+    exhaustive_movement = ExhaustiveMovement(chessboard, Point(0, 1))
+    points = exhaustive_movement.get_all_valid_movement_dst_point()
+    print("Black horse valid points:", points)
+
+    exhaustive_movement = ExhaustiveMovement(chessboard, Point(0, 0))
+    points = exhaustive_movement.get_all_valid_movement_dst_point()
+    print("Black car valid points:", points)
+
+    exhaustive_movement = ExhaustiveMovement(chessboard, Point(2, 1))
+    points = exhaustive_movement.get_all_valid_movement_dst_point()
+    print("Black cannon valid points:", points)
+
+    exhaustive_movement = ExhaustiveMovement(chessboard, Point(3, 0))
+    points = exhaustive_movement.get_all_valid_movement_dst_point()
+    print("Black soldier valid points:", points)

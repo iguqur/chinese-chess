@@ -94,8 +94,10 @@ class Point:
     '''
     点格
     '''
-    MAX_ROW = 10
-    MAX_COLUMN = 9
+    MIN_ROW = 0
+    MIN_COLUMN = 0
+    MAX_ROW = 9
+    MAX_COLUMN = 8
 
     def __init__(self, row, column):
         self.row = row
@@ -155,7 +157,10 @@ class Chessboard:
         self._chessboard = chessboard
 
     def is_empty_chesspiece(self, point):
-        is_empty_chesspiece(self._chessboard[point.row][point.column])
+        return is_empty_chesspiece(self._chessboard[point.row][point.column])
+
+    def is_not_empty_chesspiece(self, point):
+        return not is_empty_chesspiece(self._chessboard[point.row][point.column])
 
     def get_general_point(self, player):
         if player == Player.Black:
@@ -171,12 +176,11 @@ class Chessboard:
         raise Exception("Can not find general!")
 
     def __repr__(self):
-        ret = ""
+        ret = "    零  一  二  三  四  五  六  七  八  \n"
         i = 0
         for row in self._chessboard:
-            if i == 5:
-                ret += '\033[32m' + "-" * 8 + "楚河" + "-" * 9 + "汉界" + "-" * 8 + '\033[0m'
-                ret += "\n\n"
+            row_str = str(i) + ")  " # 有格子线的行
+            row_padding_str = '   ' # 格子线之间的填充行
             j = 0
             for chesspiece in row:
 
@@ -229,20 +233,23 @@ class Chessboard:
                             name = '〇'
                     return font_start + name + font_end
 
-                ret += chinese(chesspiece, i, j)
+                row_str += chinese(chesspiece, i, j)
                 if (i == 0 or i == 2 or i == 7 or i == 9) and (j == 3 or j == 4):
-                    ret += "\033[33m——\033[0m"
+                    row_str += "\033[33m——\033[0m"
                 else:
-                    ret += "  "
+                    row_str += "  "
                 j += 1
-            ret += "\n"
-            if i == 0 or i == 7:
-                ret += "\033[33m" + " " * 11 + '| ＼' + " " * 2 + "／ |\033[0m\n"
+            if i == 4:
+                row_padding_str += '\033[32m' + "-" * 8 + "楚河" + "-" * 9 + "汉界" + "-" * 8 + '\033[0m'
+            elif i == 0 or i == 7:
+                row_padding_str += "\033[33m" + " " * 11 + '| ＼' + " " * 2 + "／ |\033[0m"
             elif i == 1 or i == 8:
-                ret += "\033[33m" + " " * 11 + '| ／' + " " * 2 + "＼ |\033[0m\n"
-            else:
-                ret += "\n"
+                row_padding_str += "\033[33m" + " " * 11 + '| ／' + " " * 2 + "＼ |\033[0m"
+            ret += row_str + "\n"
+            ret += row_padding_str + "\n"
             i += 1
+        ret = ret[:-4]
+        ret += "    零  一  二  三  四  五  六  七  八 "
         return ret
 
 
