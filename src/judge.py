@@ -6,7 +6,7 @@
 # @Describe:
 
 from chessboard import Chessboard, ChessPiece, Player, is_black_chesspiece, is_red_chesspiece, is_empty_chesspiece, \
-    Point
+    Point, ChesspieceSpecies
 from movement import Movement
 from exhaustive_movement import ExhaustiveMovement
 
@@ -63,7 +63,34 @@ class Judge:
 
         self._check_movement_point_valid(movement)
 
+        self._check_is_decapitation(movement)
+
         self._move_chesspiece(movement)
+
+    def is_decapitation(self, player):
+        '''
+        在当前棋盘self._chessboard下，player方是否被将军了
+        :param chessboard:
+        :param player:
+        :return: True -- 将军
+        '''
+        general_point = self._chessboard.get_general_point(self._turn)
+        return self._is_decapitation(player, general_point)
+
+    def _is_decapitation(self, player, general_point):
+        enemy_points = self._chessboard.get_all_chesspiece_point(
+            Player.Black if self._turn == Player.Red else Player.Red)
+        for point in enemy_points:
+            exhaustive_movement = ExhaustiveMovement(self._chessboard, movement.start_point)
+            points = exhaustive_movement.get_all_valid_movement_dst_point()
+            if general_point in points:
+                return True
+        return False
+
+    def _check_is_decapitation(self, movement):
+        if self._chessboard.get_chesspices_species(movement.start_point) == ChesspieceSpecies.General:
+            if self._is_decapitation(self._turn, movement.end_point):
+                raise Exception("Movement end point is decapitation point!")
 
     def _check_movement_chesspiece(self, movement):
         '''检测被移动的棋子是否合法'''

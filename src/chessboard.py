@@ -165,6 +165,9 @@ class Chessboard:
     def is_not_empty_chesspiece(self, point):
         return not is_empty_chesspiece(self._chessboard[point.row][point.column])
 
+    def get_chesspices_species(self, point):
+        return get_chesspices_species(self.get_chesspiece(point))
+
     def get_general_point(self, player):
         if player == Player.Black:
             for row in range(0, 3):
@@ -177,6 +180,20 @@ class Chessboard:
                     if self._chessboard[row][column] == ChessPiece.RedGeneral:
                         return Point(row, column)
         raise Exception("Can not find general!")
+
+    def get_all_chesspiece_point(self, player):
+        points = []
+        if player == Player.Black:
+            for row in range(Point.MIN_ROW, Point.MAX_ROW + 1):
+                for column in range(Point.MIN_COLUMN, Point.MAX_COLUMN + 1):
+                    if is_black_chesspiece(self._chessboard[row][column]):
+                        points.append(Point(row, column))
+        else:
+            for row in range(Point.MIN_ROW, Point.MAX_ROW + 1):
+                for column in range(Point.MIN_COLUMN, Point.MAX_COLUMN + 1):
+                    if is_red_chesspiece(self._chessboard[row][column]):
+                        points.append(Point(row, column))
+        return points
 
     def __repr__(self):
         ret = "    零  一  二  三  四  五  六  七  八  \n"
